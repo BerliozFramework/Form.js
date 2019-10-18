@@ -51,7 +51,7 @@ const BerliozCollection = (($) => {
 
             if (!eventAdd.isPropagationStopped()) {
                 newElement.append($(prototypeString))
-                let lastElement = this._getCollectionItems.last()
+                let lastElement = this._getCollectionItems().last()
                 if (lastElement.length === 1) {
                     newElement.insertAfter(lastElement)
                 } else {
@@ -97,7 +97,7 @@ const BerliozCollection = (($) => {
                 let collectionNameEscaped = Collection._escapeRegExp(this.target.data('collection'))
                 let collectionId = this.target.attr('id')
 
-                this._getCollectionItems.each(function (index) {
+                this._getCollectionItems().each(function (index) {
                     $(this).attr('data-collection-key', index)
 
                     $('input, select, textarea, label', this).each(function () {
@@ -126,7 +126,7 @@ const BerliozCollection = (($) => {
         }
 
         _nbElements() {
-            return this._getCollectionItems.length
+            return this._getCollectionItems().length
         }
 
         _controlMinimum() {
