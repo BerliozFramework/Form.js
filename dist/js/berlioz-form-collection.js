@@ -7,7 +7,7 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('jquery')) :
   typeof define === 'function' && define.amd ? define(['jquery'], factory) :
   (global = global || self, global.BerliozCollection = factory(global.jQuery));
-}(this, function ($) { 'use strict';
+}(this, (function ($) { 'use strict';
 
   $ = $ && $.hasOwnProperty('default') ? $['default'] : $;
 
@@ -61,21 +61,20 @@
       // Selectors
       CLICK_ADD: 'click.add.collection.berlioz',
       CLICK_DELETE: 'click.delete.collection.berlioz'
-      /**
-       * Selectors.
-       */
-
     };
+    /**
+     * Selectors.
+     */
+
     var Selector = {
       DATA_ADD: '[data-add="collection"]',
       DATA_DELETE: '[data-delete="collection"]',
       COLLECTION: '[data-collection]',
       COLLECTION_KEY: '[data-collection-key]'
-      /**
-       * Collection class.
-       */
-
     };
+    /**
+     * Collection class.
+     */
 
     var Collection =
     /*#__PURE__*/
@@ -84,16 +83,16 @@
         _classCallCheck(this, Collection);
 
         this.target = $(target);
+        this.index = this._getCollectionItems().last().attr('data-collection-key') || -1;
       }
 
       _createClass(Collection, [{
         key: "addElement",
         value: function addElement() {
           // Count the total element count in the collection
-          var newCount = this._nbElements();
-
-          var newElement = $('<div data-collection-key="' + newCount + '"></div>');
-          var prototypeString = this.target.data('prototype').replace(/___name___/g, newCount); // Control maximum
+          var newIndex = this.index + 1;
+          var newElement = $('<div data-collection-key="' + newIndex + '"></div>');
+          var prototypeString = this.target.data('prototype').replace(/___name___/g, newIndex); // Control maximum
 
           if (this._controlMaximum()) {
             return;
@@ -103,20 +102,20 @@
           var eventAdd = $.Event(Event.ADD);
           this.target.trigger(eventAdd);
 
-          if (!eventAdd.isPropagationStopped()) {
+          if (!eventAdd.isDefaultPrevented()) {
             newElement.append($(prototypeString));
-            var lastElement = $(Selector.COLLECTION_KEY, this.target).last();
+
+            var lastElement = this._getCollectionItems().last();
 
             if (lastElement.length === 1) {
               newElement.insertAfter(lastElement);
             } else {
               this.target.prepend(newElement);
-            } // ADDED event
+            }
 
+            this.index = newIndex; // ADDED event
 
-            this.target.trigger(Event.ADDED); // Control maximum
-
-            this._controlMaximum();
+            this.target.trigger(Event.ADDED);
           }
         }
       }, {
@@ -126,7 +125,7 @@
           // the item base element from its parents
 
           if (typeof element.data('collection-key') === 'undefined') {
-            element = element.parents(Selector.COLLECTION_KEY);
+            element = element.closest(Selector.COLLECTION_KEY);
           } // If no element found!
 
 
@@ -143,43 +142,16 @@
           var eventDelete = $.Event(Event.DELETE);
           this.target.trigger(eventDelete);
 
-          if (!eventDelete.isPropagationStopped()) {
-            element.remove(); // Update the indexes on each element
+          if (!eventDelete.isDefaultPrevented()) {
+            element.remove(); // DELETED event
 
-            var collectionName = this.target.data('collection');
-
-            var collectionNameEscaped = Collection._escapeRegExp(this.target.data('collection'));
-
-            var collectionId = this.target.attr('id');
-            $(Selector.COLLECTION_KEY, this.target).each(function (index) {
-              $(this).attr('data-collection-key', index);
-              $('input, select, textarea, label', this).each(function () {
-                var idPattern = new RegExp(collectionId + '_\\d+');
-                var namePattern = new RegExp(collectionNameEscaped + '\\[\\d+');
-
-                if ($(this)[0].hasAttribute('for')) {
-                  $(this).attr('for', $(this).attr('for').replace(idPattern, collectionId + '_' + index));
-                }
-
-                if ($(this)[0].hasAttribute('name')) {
-                  $(this).attr('name', $(this).attr('name').replace(namePattern, collectionName + '[' + index));
-                }
-
-                if ($(this)[0].hasAttribute('id')) {
-                  $(this).attr('id', $(this).attr('id').replace(idPattern, collectionId + '_' + index));
-                }
-              });
-            }); // DELETED event
-
-            this.target.trigger(Event.DELETED); // Control minimum
-
-            this._controlMinimum();
+            this.target.trigger(Event.DELETED);
           }
         }
       }, {
         key: "_nbElements",
         value: function _nbElements() {
-          return $(Selector.COLLECTION_KEY, this.target).length;
+          return this._getCollectionItems().length;
         }
       }, {
         key: "_controlMinimum",
@@ -204,6 +176,11 @@
           }
 
           return false;
+        }
+      }, {
+        key: "_getCollectionItems",
+        value: function _getCollectionItems() {
+          return this.target.children(Selector.COLLECTION_KEY);
         }
       }], [{
         key: "_escapeRegExp",
@@ -244,7 +221,16 @@
 
 
     $(document).off(Event.CLICK_ADD, Selector.DATA_ADD).on(Event.CLICK_ADD, Selector.DATA_ADD, function (event) {
-      $(event.currentTarget).parents(Selector.COLLECTION).berliozCollection('add');
+      var target = $(event.currentTarget);
+      var collection;
+
+      if (target.data('target')) {
+        collection = $('[data-collection="' + target.data('target') + '"]');
+      } else {
+        collection = target.closest(Selector.COLLECTION);
+      }
+
+      collection.berliozCollection('add');
     }).off(Event.CLICK_DELETE, Selector.DATA_DELETE).on(Event.CLICK_DELETE, Selector.DATA_DELETE, function (event) {
       $(event.currentTarget).parents(Selector.COLLECTION).berliozCollection('delete', $(event.currentTarget).parents(Selector.COLLECTION_KEY));
     });
@@ -252,5 +238,5 @@
 
   return BerliozCollection;
 
-}));
+})));
 //# sourceMappingURL=berlioz-form-collection.js.map
