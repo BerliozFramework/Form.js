@@ -180,7 +180,10 @@
       }, {
         key: "_getCollectionItems",
         value: function _getCollectionItems() {
-          return this.target.children(Selector.COLLECTION_KEY);
+          var self = this;
+          return this.target.children(Selector.COLLECTION_KEY).filter(function () {
+            return $(this).closest(Selector.COLLECTION).is(self.target);
+          });
         }
       }], [{
         key: "_escapeRegExp",
