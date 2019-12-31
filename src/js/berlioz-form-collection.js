@@ -32,7 +32,7 @@ const BerliozCollection = (($) => {
     class Collection {
         constructor(target) {
             this.target = $(target);
-            this.index = this._getCollectionItems().last().attr('data-collection-key') || -1;
+            this.index = parseInt(this._getCollectionItems().last().attr('data-collection-key') || -1);
         }
 
         addElement() {
