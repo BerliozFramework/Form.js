@@ -127,7 +127,14 @@ const BerliozCollection = (($) => {
         }
 
         _getCollectionItems() {
-            return this.target.children(Selector.COLLECTION_KEY);
+            let self = this;
+
+            return this
+                .target
+                .children(Selector.COLLECTION_KEY)
+                .filter(function () {
+                    return this.closest(Selector.COLLECTION).is(self.target);
+                });
         }
 
         static _escapeRegExp(string) {
