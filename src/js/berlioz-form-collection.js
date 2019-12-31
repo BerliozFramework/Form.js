@@ -14,7 +14,7 @@ const BerliozCollection = (($) => {
         // Selectors
         CLICK_ADD: 'click.add.collection.berlioz',
         CLICK_DELETE: 'click.delete.collection.berlioz'
-    }
+    };
 
     /**
      * Selectors.
@@ -24,7 +24,7 @@ const BerliozCollection = (($) => {
         DATA_DELETE: '[data-delete="collection"]',
         COLLECTION: '[data-collection]',
         COLLECTION_KEY: '[data-collection-key]'
-    }
+    };
 
     /**
      * Collection class.
@@ -49,7 +49,7 @@ const BerliozCollection = (($) => {
             let eventAdd = $.Event(Event.ADD)
             this.target.trigger(eventAdd)
 
-            if (!eventAdd.isPropagationStopped()) {
+            if (!eventAdd.isDefaultPrevented()) {
                 newElement.append($(prototypeString))
                 let lastElement = this._getCollectionItems().last()
                 if (lastElement.length === 1) {
@@ -89,7 +89,7 @@ const BerliozCollection = (($) => {
             let eventDelete = $.Event(Event.DELETE)
             this.target.trigger(eventDelete)
 
-            if (!eventDelete.isPropagationStopped()) {
+            if (!eventDelete.isDefaultPrevented()) {
                 element.remove()
 
                 // Update the indexes on each element
@@ -154,6 +154,7 @@ const BerliozCollection = (($) => {
         _getCollectionItems() {
             return this.target.children(Selector.COLLECTION_KEY);
         }
+
         static _escapeRegExp(string) {
             return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // $& means the whole matched string
         }
