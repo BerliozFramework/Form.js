@@ -133,7 +133,7 @@ const BerliozCollection = (($) => {
                 .target
                 .children(Selector.COLLECTION_KEY)
                 .filter(function () {
-                    return this.closest(Selector.COLLECTION).is(self.target);
+                    return $(this).closest(Selector.COLLECTION).is(self.target);
                 });
         }
 
