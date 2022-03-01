@@ -95,7 +95,7 @@ class Collection {
         tpl.innerHTML = this.config.prototype.replace(/___name___/g, this._index);
 
         // ADD event
-        let event = triggerEvent(Event.ADD, this.target);
+        let event = triggerEvent(Event.ADD, this.target, {collection: this});
 
         if (!event.defaultPrevented) {
             // Insert after last element or to the end
@@ -105,8 +105,10 @@ class Collection {
                 this.target.append(tpl);
             }
 
-            triggerEvent(Event.ADDED, this.target, {relatedTarget: tpl});
+            triggerEvent(Event.ADDED, this.target, {relatedTarget: tpl, collection: this});
         }
+
+        return tpl;
     }
 
     remove(element) {
@@ -122,7 +124,7 @@ class Collection {
         }
 
         // DELETE event
-        let event = triggerEvent(Event.DELETE, this.target, {relatedTarget: element});
+        let event = triggerEvent(Event.DELETE, this.target, {relatedTarget: element, collection: this});
 
         if (this.isMin()) {
             return;
@@ -130,13 +132,15 @@ class Collection {
 
         if (!event.defaultPrevented) {
             element.parentNode.removeChild(element);
-            triggerEvent(Event.DELETED, this.target, {relatedTarget: element});
+            triggerEvent(Event.DELETED, this.target, {relatedTarget: element, collection: this});
         }
+
+        return element;
     }
 
     isMin() {
         if (this.config.min > -1 && this.config.min >= this.items.length) {
-            triggerEvent(Event.MIN, this.target, {relatedTarget: this.target});
+            triggerEvent(Event.MIN, this.target, {relatedTarget: this.target, collection: this});
             return true;
         }
 
@@ -145,7 +149,7 @@ class Collection {
 
     isFull() {
         if (this.config.max > -1 && this.config.max <= this.items.length) {
-            triggerEvent(Event.MAX, this.target, {relatedTarget: this.target});
+            triggerEvent(Event.MAX, this.target, {relatedTarget: this.target, collection: this});
             return true;
         }
 
