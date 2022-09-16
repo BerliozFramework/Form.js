@@ -96,9 +96,19 @@ class Collection {
         tpl.innerHTML = this.config.prototype.replace(new RegExp('___' + this.config.prototypePlaceholder + '___', 'g'), this._index);
 
         // ADD event
-        let event = triggerEvent(Event.ADD, this.target, {collection: this});
+        let event = triggerEvent(Event.ADD, this.target, {collection: this, relatedTarget: tpl});
 
         if (!event.defaultPrevented) {
+            // Init sub collection
+            tpl.querySelectorAll(Selector.COLLECTION).forEach((element) => {
+                // Already initialized
+                if (element._collection) {
+                    return;
+                }
+
+                new Collection(element);
+            });
+
             // Insert after last element or to the end
             if (this.lastItem) {
                 this.lastItem.after(tpl);
