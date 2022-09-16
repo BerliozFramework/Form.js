@@ -22,6 +22,7 @@ const Default = {
     min: 0,
     max: -1,
     prototype: null,
+    prototypePlaceholder: 'name',
 };
 
 class Collection {
@@ -92,7 +93,7 @@ class Collection {
 
         let tpl = document.createElement('div');
         tpl.dataset.collectionKey = (++this._index).toString();
-        tpl.innerHTML = this.config.prototype.replace(/___name___/g, this._index);
+        tpl.innerHTML = this.config.prototype.replace(new RegExp('___' + this.config.prototypePlaceholder + '___', 'g'), this._index);
 
         // ADD event
         let event = triggerEvent(Event.ADD, this.target, {collection: this});

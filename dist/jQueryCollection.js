@@ -94,18 +94,17 @@
   }
 
   function _getPrototypeOf(o) {
-    _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+    _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) {
       return o.__proto__ || Object.getPrototypeOf(o);
     };
     return _getPrototypeOf(o);
   }
 
   function _setPrototypeOf(o, p) {
-    _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+    _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) {
       o.__proto__ = p;
       return o;
     };
-
     return _setPrototypeOf(o, p);
   }
 
@@ -197,7 +196,8 @@
   var Default = {
     min: 0,
     max: -1,
-    prototype: null
+    prototype: null,
+    prototypePlaceholder: 'name'
   };
 
   var Collection$1 = /*#__PURE__*/function () {
@@ -274,9 +274,11 @@
 
         var tpl = document.createElement('div');
         tpl.dataset.collectionKey = (++this._index).toString();
-        tpl.innerHTML = this.config.prototype.replace(/___name___/g, this._index); // ADD event
+        tpl.innerHTML = this.config.prototype.replace(new RegExp('___' + this.config.prototypePlaceholder + '___', 'g'), this._index); // ADD event
 
-        var event = triggerEvent(Event.ADD, this.target);
+        var event = triggerEvent(Event.ADD, this.target, {
+          collection: this
+        });
 
         if (!event.defaultPrevented) {
           // Insert after last element or to the end
@@ -287,9 +289,12 @@
           }
 
           triggerEvent(Event.ADDED, this.target, {
-            relatedTarget: tpl
+            relatedTarget: tpl,
+            collection: this
           });
         }
+
+        return tpl;
       }
     }, {
       key: "remove",
@@ -307,7 +312,8 @@
 
 
         var event = triggerEvent(Event.DELETE, this.target, {
-          relatedTarget: element
+          relatedTarget: element,
+          collection: this
         });
 
         if (this.isMin()) {
@@ -317,16 +323,20 @@
         if (!event.defaultPrevented) {
           element.parentNode.removeChild(element);
           triggerEvent(Event.DELETED, this.target, {
-            relatedTarget: element
+            relatedTarget: element,
+            collection: this
           });
         }
+
+        return element;
       }
     }, {
       key: "isMin",
       value: function isMin() {
         if (this.config.min > -1 && this.config.min >= this.items.length) {
           triggerEvent(Event.MIN, this.target, {
-            relatedTarget: this.target
+            relatedTarget: this.target,
+            collection: this
           });
           return true;
         }
@@ -338,7 +348,8 @@
       value: function isFull() {
         if (this.config.max > -1 && this.config.max <= this.items.length) {
           triggerEvent(Event.MAX, this.target, {
-            relatedTarget: this.target
+            relatedTarget: this.target,
+            collection: this
           });
           return true;
         }
